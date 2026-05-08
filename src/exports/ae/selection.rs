@@ -442,8 +442,8 @@ fn receive_selection_jsx(
 
     format!(
         r#"(function() {{
-var DITIS_PORT = {port};
-var DITIS_NONCE = "{nonce}";
+var NEOSTS_PORT = {port};
+var NEOSTS_NONCE = "{nonce}";
 var karaCellMode = "{kara_cell_mode}";
 
 function escapeString(str) {{
@@ -459,8 +459,8 @@ function escapeString(str) {{
 function sendJson(json) {{
     var socket = new Socket();
     socket.encoding = "UTF-8";
-    if (socket.open("127.0.0.1:" + DITIS_PORT)) {{
-        socket.write(DITIS_NONCE + ":" + json);
+    if (socket.open("127.0.0.1:" + NEOSTS_PORT)) {{
+        socket.write(NEOSTS_NONCE + ":" + json);
         socket.close();
     }} else {{
         alert("{connect_error}");
@@ -696,8 +696,8 @@ mod tests {
         let session = begin_receive_session(31715);
         let script =
             receive_selection_jsx(&session, AeKaraCellMode::MaxFrameCount, AppLocale::Japanese);
-        assert!(script.contains("var DITIS_PORT = 31715;"));
-        assert!(script.contains(&format!("var DITIS_NONCE = \"{}\";", session.nonce)));
+        assert!(script.contains("var NEOSTS_PORT = 31715;"));
+        assert!(script.contains(&format!("var NEOSTS_NONCE = \"{}\";", session.nonce)));
         assert!(script.contains("var karaCellMode = \"max_frame_count\";"));
         assert!(
             script

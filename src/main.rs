@@ -32,6 +32,7 @@ const MIN_CELL_SCALE: f32 = 0.5;
 const MAX_CELL_SCALE: f32 = 2.0;
 const MAX_HISTORY_ENTRIES: usize = 100;
 const IMAGE_PANEL_DEFAULT_WIDTH: f32 = 260.0;
+const GITHUB_REPOSITORY_URL: &str = "https://github.com/shimofuri-sequence/neosts";
 
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct DocumentSnapshot {
@@ -907,6 +908,13 @@ impl TableApp {
             format!("{} - NeoSTS", self.displayed_sheet_name())
         };
         ctx.send_viewport_cmd(egui::ViewportCommand::Title(title));
+    }
+
+    fn open_github_repository(&self, ctx: &egui::Context) {
+        ctx.open_url(egui::OpenUrl {
+            url: GITHUB_REPOSITORY_URL.to_owned(),
+            new_tab: true,
+        });
     }
 
     fn handle_table_events(&mut self, ctx: &egui::Context, events: Vec<TableViewEvent>) {

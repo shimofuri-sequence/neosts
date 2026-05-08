@@ -19,7 +19,7 @@ pub use selection::{
     receive_selection_payload_once, selection_payload_to_sheet,
 };
 
-const TEMP_JSX_PREFIX: &str = "neosts-afterfx-";
+const TEMP_JSX_PREFIX: &str = "neosts-";
 const TEMP_JSX_SUFFIX: &str = ".jsx";
 
 pub fn cleanup_temp_jsx_files() {
@@ -58,11 +58,8 @@ fn write_temp_jsx(script: &str) -> Result<PathBuf, io::Error> {
     let timestamp = SystemTime::now()
         .duration_since(UNIX_EPOCH)
         .unwrap_or_default()
-        .as_millis();
-    path.push(format!(
-        "{TEMP_JSX_PREFIX}{timestamp}-{}{TEMP_JSX_SUFFIX}",
-        std::process::id()
-    ));
+        .as_micros();
+    path.push(format!("{TEMP_JSX_PREFIX}{timestamp}{TEMP_JSX_SUFFIX}"));
     fs::write(&path, script)?;
     Ok(path)
 }
@@ -95,7 +92,7 @@ mod tests {
 
     #[test]
     fn temp_jsx_file_name_pattern_is_stable() {
-        let file_name = format!("{TEMP_JSX_PREFIX}123-456{TEMP_JSX_SUFFIX}");
+        let file_name = format!("{TEMP_JSX_PREFIX}123456{TEMP_JSX_SUFFIX}");
         assert!(file_name.starts_with(TEMP_JSX_PREFIX));
         assert!(file_name.ends_with(TEMP_JSX_SUFFIX));
     }

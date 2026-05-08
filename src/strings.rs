@@ -623,6 +623,12 @@ pub fn cmd_show_about(locale: AppLocale) -> &'static str {
         AppLocale::English => "About NeoSTS...",
     }
 }
+pub fn open_github_repository(locale: AppLocale) -> &'static str {
+    match locale {
+        AppLocale::Japanese => "GitHubリポジトリを開く",
+        AppLocale::English => "Open GitHub Repository",
+    }
+}
 pub fn cmd_rename_column(locale: AppLocale) -> &'static str {
     match locale {
         AppLocale::Japanese => "列の名前を変更...",

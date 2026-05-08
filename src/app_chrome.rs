@@ -388,6 +388,11 @@ impl TableApp {
 
                     ui.menu_button(AppMenu::Help.localized_label(locale), |ui| {
                         ui.set_min_width(180.0);
+                        if ui.button(strings::open_github_repository(locale)).clicked() {
+                            self.open_github_repository(ui.ctx());
+                            ui.close();
+                        }
+                        ui.separator();
                         if ui
                             .button(AppCommand::ShowAbout.localized_label(locale))
                             .clicked()
