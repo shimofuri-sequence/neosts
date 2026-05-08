@@ -1,7 +1,7 @@
 use neosts::sts;
 use neosts::{
-    AppLocale, ArdFile, DitisFile, DisplaySheetState, StsFile, SxfFile, TableViewState,
-    TdtsFile, XdtsFile, strings,
+    AppLocale, ArdFile, DisplaySheetState, DitisFile, StsFile, SxfFile, TableViewState, TdtsFile,
+    XdtsFile, strings,
 };
 use rfd::FileDialog;
 use std::path::{Path, PathBuf};

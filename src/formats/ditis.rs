@@ -115,7 +115,10 @@ pub struct DitisSheet {
     pub inserted_frame_map: std::collections::BTreeMap<String, usize>,
 }
 
-fn build_column_values(sheet_data: &DitisSheet, index: usize) -> Result<Vec<CellValue>, DitisError> {
+fn build_column_values(
+    sheet_data: &DitisSheet,
+    index: usize,
+) -> Result<Vec<CellValue>, DitisError> {
     let raw_values = sheet_data.data.get(index);
     let value_count = raw_values.map_or(0, Vec::len);
     if value_count > sheet_data.frames {
@@ -182,9 +185,15 @@ fn to_row_index_set(
         .map(|frame| {
             if frame == 0 || frame > row_count {
                 return Err(if inserted {
-                    DitisError::InsertedFrameOutOfRange { frame, frames: row_count }
+                    DitisError::InsertedFrameOutOfRange {
+                        frame,
+                        frames: row_count,
+                    }
                 } else {
-                    DitisError::DisabledFrameOutOfRange { frame, frames: row_count }
+                    DitisError::DisabledFrameOutOfRange {
+                        frame,
+                        frames: row_count,
+                    }
                 });
             }
             Ok(frame - 1)

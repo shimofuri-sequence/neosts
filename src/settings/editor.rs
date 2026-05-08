@@ -695,8 +695,7 @@ fn normalize_ae_keyframe_version(value: &str) -> String {
 mod tests {
     use super::{
         AeKaraCellMode, AeKeyframeDataLocale, ClipboardExportFormat, DEFAULT_AE_KEYFRAME_VERSION,
-        EditorSettings, KeyBinding, KeyBindings, KeybindAction,
-        normalize_ae_keyframe_version,
+        EditorSettings, KeyBinding, KeyBindings, KeybindAction, normalize_ae_keyframe_version,
     };
 
     #[test]

@@ -58,7 +58,10 @@ impl TdtsFile {
     }
 
     pub fn to_sheet_with_fps(&self, fps: u32) -> Result<Sheet, TdtsError> {
-        let time_sheet = self.time_sheets.first().ok_or(TdtsError::MissingTimeSheet)?;
+        let time_sheet = self
+            .time_sheets
+            .first()
+            .ok_or(TdtsError::MissingTimeSheet)?;
         let time_table = time_sheet
             .time_tables
             .first()
@@ -75,15 +78,19 @@ impl TdtsFile {
                     .find(|header| header.field_id == field.field_id)
                     .map(|header| header.names.as_slice());
 
-                field.tracks.iter().enumerate().map(move |(track_index, track)| {
-                    let name = header_names
-                        .and_then(|names| names.get(track_index))
-                        .filter(|name| !name.trim().is_empty())
-                        .cloned()
-                        .unwrap_or_else(|| default_column_name(track.track_no));
-                    let values = expand_track(duration, &track.frames)?;
-                    Ok(SheetColumn::new(name, values))
-                })
+                field
+                    .tracks
+                    .iter()
+                    .enumerate()
+                    .map(move |(track_index, track)| {
+                        let name = header_names
+                            .and_then(|names| names.get(track_index))
+                            .filter(|name| !name.trim().is_empty())
+                            .cloned()
+                            .unwrap_or_else(|| default_column_name(track.track_no));
+                        let values = expand_track(duration, &track.frames)?;
+                        Ok(SheetColumn::new(name, values))
+                    })
             })
             .collect::<Result<Vec<_>, TdtsError>>()?;
 

@@ -134,22 +134,20 @@ impl TableApp {
             KeyboardShortcut::new(Modifiers::CTRL.plus(Modifiers::ALT), Key::ArrowRight);
 
         if ctx.input_mut(|input| input.consume_shortcut(&MOVE_SELECTED_COLUMNS_LEFT)) {
-            if self.table_view.move_selected_columns(
-                &mut self.sheet,
-                &self.table_settings,
-                -1,
-            ) {
+            if self
+                .table_view
+                .move_selected_columns(&mut self.sheet, &self.table_settings, -1)
+            {
                 ctx.request_repaint();
             }
             return;
         }
 
         if ctx.input_mut(|input| input.consume_shortcut(&MOVE_SELECTED_COLUMNS_RIGHT)) {
-            if self.table_view.move_selected_columns(
-                &mut self.sheet,
-                &self.table_settings,
-                1,
-            ) {
+            if self
+                .table_view
+                .move_selected_columns(&mut self.sheet, &self.table_settings, 1)
+            {
                 ctx.request_repaint();
             }
             return;

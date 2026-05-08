@@ -348,7 +348,12 @@ impl Sheet {
         true
     }
 
-    pub fn move_column_range(&mut self, start_col: usize, end_col: usize, direction: isize) -> bool {
+    pub fn move_column_range(
+        &mut self,
+        start_col: usize,
+        end_col: usize,
+        direction: isize,
+    ) -> bool {
         if self.columns.is_empty() || start_col > end_col || end_col >= self.columns.len() {
             return false;
         }
