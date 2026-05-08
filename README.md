@@ -115,6 +115,12 @@ macOS の `.app` バンドルは、macOS 上で次のスクリプトから作成
 ./scripts/bundle-macos-app.sh
 ```
 
+GitHub Releases などから取得した macOS 版アプリは、未署名のため初回起動時に macOS から「破損している」ような警告が出ることがあります。その場合は quarantine 属性を外してから起動してください。
+
+```bash
+xattr -dr com.apple.quarantine /path/to/NeoSTS.app
+```
+
 ## ライセンス
 
 MIT
