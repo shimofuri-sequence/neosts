@@ -1,0 +1,7 @@
+/target
+.codex/
+.claude/
+.DS_Store
+/debug/
+/tests/fixtures/*
+!/tests/fixtures/.gitkeep
