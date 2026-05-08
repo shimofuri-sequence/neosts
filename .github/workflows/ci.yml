@@ -36,7 +36,7 @@ jobs:
         run: cargo test --all-targets
 
   windows:
-    name: Windows Check
+    name: Windows Check And Build
     runs-on: windows-latest
 
     steps:
@@ -51,3 +51,13 @@ jobs:
 
       - name: Cargo check
         run: cargo check --all-targets
+
+      - name: Build release binary
+        run: cargo build --release --bin NeoSTS
+
+      - name: Upload Windows artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: NeoSTS-windows
+          path: target/release/NeoSTS.exe
+          if-no-files-found: error
