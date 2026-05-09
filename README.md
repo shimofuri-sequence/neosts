@@ -1,4 +1,7 @@
 # NeoSTS
+<p align="center">
+  <img src="docs/screenshots/neosts.png" alt="NeoSTS" width="48%">
+</p>
 
 NeoSTS は、STS 系のアニメ撮影タイムシートを軽快に編集するためのデスクトップアプリです。
 
