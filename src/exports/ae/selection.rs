@@ -1,7 +1,7 @@
 use super::generate_nonce;
 use super::platform::{SendToAfterEffectsError, launch_after_effects_script};
 use super::write_temp_jsx;
-use crate::{AeKaraCellMode, AppLocale, strings};
+use crate::{AeKaraCellMode, AeSheetNameSource, AppLocale, strings};
 use serde::{Deserialize, Serialize};
 use sheet::{CellValue, Sheet, SheetColumn};
 use std::fs;
@@ -24,6 +24,10 @@ pub struct AeSelectionPayload {
     pub result: AeSelectionResult,
     pub fps: f64,
     pub comp_name: String,
+    #[serde(default)]
+    pub project_name: Option<String>,
+    #[serde(default)]
+    pub render_queue_name: Option<String>,
     pub comp_duration: f64,
     #[serde(default)]
     pub error: Option<String>,
@@ -202,6 +206,19 @@ impl AePayloadToSheetError {
     }
 }
 
+impl AeSelectionPayload {
+    pub fn sheet_name(&self, source: AeSheetNameSource) -> &str {
+        match source {
+            AeSheetNameSource::CompName => &self.comp_name,
+            AeSheetNameSource::ProjectName => non_empty_name(self.project_name.as_deref())
+                .unwrap_or(&self.comp_name),
+            AeSheetNameSource::RenderQueueName => {
+                non_empty_name(self.render_queue_name.as_deref()).unwrap_or(&self.comp_name)
+            }
+        }
+    }
+}
+
 pub fn begin_receive_session(port: u16) -> AeReceiveSession {
     AeReceiveSession {
         nonce: generate_nonce(),
@@ -321,6 +338,10 @@ pub fn selection_payload_to_sheet(
 
 fn duration_to_frame_count(duration: f64, fps: u32) -> usize {
     (duration.max(0.0) * fps as f64).round() as usize
+}
+
+fn non_empty_name(value: Option<&str>) -> Option<&str> {
+    value.and_then(|name| (!name.trim().is_empty()).then_some(name))
 }
 
 fn time_to_frame_index(time: f64, fps: u32) -> usize {
@@ -471,6 +492,62 @@ function sendError(message) {{
     sendJson('{{"result":"error","fps":0,"compName":"error","compDuration":0,"error":"' + escapeString(message) + '","layers":[]}}');
 }}
 
+function projectNameForNeoSTS() {{
+    if (!app.project || !app.project.file) {{
+        return "";
+    }}
+    var fileName = File.decode(app.project.file.name || "");
+    return fileName.replace(/\.[^.]+$/, "");
+}}
+
+function compArrayContainsComp(comps, comp) {{
+    for (var i = 0; i < comps.length; i++) {{
+        if (comps[i] === comp) {{
+            return true;
+        }}
+    }}
+    return false;
+}}
+
+function renderQueueCompMatchesOrContains(candidateComp, targetComp, visitedComps) {{
+    if (!candidateComp || !targetComp) {{
+        return false;
+    }}
+    if (candidateComp === targetComp) {{
+        return true;
+    }}
+    if (compArrayContainsComp(visitedComps, candidateComp)) {{
+        return false;
+    }}
+    visitedComps.push(candidateComp);
+    for (var layerIndex = 1; layerIndex <= candidateComp.numLayers; layerIndex++) {{
+        var candidateLayer = candidateComp.layer(layerIndex);
+        if (candidateLayer && candidateLayer.source instanceof CompItem) {{
+            if (renderQueueCompMatchesOrContains(candidateLayer.source, targetComp, visitedComps)) {{
+                return true;
+            }}
+        }}
+    }}
+    return false;
+}}
+
+function renderQueueNameForComp(targetComp) {{
+    if (!app.project || !app.project.renderQueue) {{
+        return "";
+    }}
+    var renderQueue = app.project.renderQueue;
+    for (var itemIndex = 1; itemIndex <= renderQueue.numItems; itemIndex++) {{
+        var renderItem = renderQueue.item(itemIndex);
+        if (!renderItem || !(renderItem.comp instanceof CompItem)) {{
+            continue;
+        }}
+        if (renderQueueCompMatchesOrContains(renderItem.comp, targetComp, [])) {{
+            return renderItem.comp.name || "";
+        }}
+    }}
+    return "";
+}}
+
 function pushKeyframes(prop, dest) {{
     if (!prop || prop.numKeys === 0) {{
         return;
@@ -538,6 +615,8 @@ try {{
     json += '"result":"ok",';
     json += '"fps":' + comp.frameRate + ',';
     json += '"compName":"' + escapeString(comp.name) + '",';
+    json += '"projectName":"' + escapeString(projectNameForNeoSTS()) + '",';
+    json += '"renderQueueName":"' + escapeString(renderQueueNameForComp(comp)) + '",';
     json += '"compDuration":' + comp.duration + ',';
     json += '"layers":[';
 
@@ -619,8 +698,7 @@ mod tests {
         ParseAePayloadError, begin_receive_session, parse_nonce_prefixed_payload,
         receive_selection_jsx, selection_payload_to_sheet,
     };
-    use crate::AeKaraCellMode;
-    use crate::AppLocale;
+    use crate::{AeKaraCellMode, AeSheetNameSource, AppLocale};
     use sheet::CellValue;
 
     #[test]
@@ -645,6 +723,8 @@ mod tests {
                 result: AeSelectionResult::Ok,
                 fps: 24.0,
                 comp_name: "Comp 1".to_owned(),
+                project_name: None,
+                render_queue_name: None,
                 comp_duration: 3.0,
                 error: None,
                 layers: vec![AeLayerPayload {
@@ -715,6 +795,8 @@ mod tests {
             result: AeSelectionResult::Ok,
             fps: 24.0,
             comp_name: "Comp 1".to_owned(),
+            project_name: None,
+            render_queue_name: None,
             comp_duration: 0.25,
             error: None,
             layers: vec![AeLayerPayload {
@@ -762,6 +844,8 @@ mod tests {
             result: AeSelectionResult::Ok,
             fps: 0.0,
             comp_name: "Comp 1".to_owned(),
+            project_name: None,
+            render_queue_name: None,
             comp_duration: 1.0,
             error: None,
             layers: Vec::new(),
@@ -779,6 +863,8 @@ mod tests {
             result: AeSelectionResult::Ok,
             fps: 24.0,
             comp_name: "Comp 10f".to_owned(),
+            project_name: None,
+            render_queue_name: None,
             comp_duration: (10.0 / 24.0) + 1e-9,
             error: None,
             layers: vec![AeLayerPayload {
@@ -820,6 +906,8 @@ mod tests {
             result: AeSelectionResult::Ok,
             fps: 24.0,
             comp_name: "Comp 1".to_owned(),
+            project_name: None,
+            render_queue_name: None,
             comp_duration: 0.25,
             error: None,
             layers: vec![AeLayerPayload {
@@ -859,6 +947,8 @@ mod tests {
             result: AeSelectionResult::Ok,
             fps: 24.0,
             comp_name: "Comp 1".to_owned(),
+            project_name: None,
+            render_queue_name: None,
             comp_duration: 0.25,
             error: None,
             layers: vec![AeLayerPayload {
@@ -898,6 +988,8 @@ mod tests {
             result: AeSelectionResult::Ok,
             fps: 24.0,
             comp_name: "Comp 1".to_owned(),
+            project_name: None,
+            render_queue_name: None,
             comp_duration: 0.5,
             error: None,
             layers: vec![AeLayerPayload {
@@ -927,5 +1019,40 @@ mod tests {
         let sheet = selection_payload_to_sheet(&payload, AeKaraCellMode::MaxFrameCount).unwrap();
         assert_eq!(sheet.cell(0, 0).map(CellValue::as_i64), Some(1));
         assert_eq!(sheet.cell(0, 1).map(CellValue::as_i64), Some(0));
+    }
+
+    #[test]
+    fn resolves_sheet_name_with_fallbacks() {
+        let payload = AeSelectionPayload {
+            result: AeSelectionResult::Ok,
+            fps: 24.0,
+            comp_name: "Comp 1".to_owned(),
+            project_name: Some("Project A".to_owned()),
+            render_queue_name: Some("RQ Master".to_owned()),
+            comp_duration: 1.0,
+            error: None,
+            layers: Vec::new(),
+        };
+
+        assert_eq!(payload.sheet_name(AeSheetNameSource::CompName), "Comp 1");
+        assert_eq!(payload.sheet_name(AeSheetNameSource::ProjectName), "Project A");
+        assert_eq!(
+            payload.sheet_name(AeSheetNameSource::RenderQueueName),
+            "RQ Master"
+        );
+
+        let payload_without_candidates = AeSelectionPayload {
+            project_name: None,
+            render_queue_name: Some(String::new()),
+            ..payload
+        };
+        assert_eq!(
+            payload_without_candidates.sheet_name(AeSheetNameSource::ProjectName),
+            "Comp 1"
+        );
+        assert_eq!(
+            payload_without_candidates.sheet_name(AeSheetNameSource::RenderQueueName),
+            "Comp 1"
+        );
     }
 }

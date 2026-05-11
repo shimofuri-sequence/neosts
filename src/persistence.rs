@@ -1,8 +1,9 @@
 use crate::theme_files;
 use eframe::Storage;
 use neosts::{
-    AeKaraCellMode, AeKeyframeDataLocale, AppLocale, AppSettings, ClipboardExportFormat,
-    DisplayMode, EditorSettings, SheetSettings, TableColorTheme, TableSettings, TableViewState,
+    AeKaraCellMode, AeKeyframeDataLocale, AeSheetNameSource, AppLocale, AppSettings,
+    ClipboardExportFormat, DisplayMode, EditorSettings, SheetSettings, TableColorTheme,
+    TableSettings, TableViewState,
 };
 
 const CELL_SCALE_KEY: &str = "table_view.cell_scale";
@@ -57,6 +58,7 @@ const CLIPBOARD_EXPORT_FORMAT_KEY: &str = "editor.clipboard_export_format";
 const AE_KEYFRAME_DATA_LOCALE_KEY: &str = "editor.ae_keyframe_data_locale";
 const AE_KEYFRAME_VERSION_KEY: &str = "editor.ae_keyframe_version";
 const AE_KARA_CELL_MODE_KEY: &str = "editor.ae_kara_cell_mode";
+const AE_SHEET_NAME_SOURCE_KEY: &str = "editor.ae_sheet_name_source";
 const DEFAULT_SHEET_FPS_KEY: &str = "sheet.default_fps";
 const DEFAULT_SECONDS_PER_PAGE_KEY: &str = "sheet.default_seconds_per_page";
 const DEFAULT_FRAMES_PER_PAGE_KEY: &str = "sheet.default_frames_per_page";
@@ -225,6 +227,9 @@ pub fn load_from_storage(
     }
     if let Some(mode_id) = eframe::get_value::<u8>(storage, AE_KARA_CELL_MODE_KEY) {
         editor_settings.ae_kara_cell_mode = AeKaraCellMode::from_storage_id(mode_id);
+    }
+    if let Some(source_id) = eframe::get_value::<u8>(storage, AE_SHEET_NAME_SOURCE_KEY) {
+        editor_settings.ae_sheet_name_source = AeSheetNameSource::from_storage_id(source_id);
     }
     if let Some(fps) = eframe::get_value::<u32>(storage, DEFAULT_SHEET_FPS_KEY) {
         sheet_settings.default_fps = clamp_sheet_fps(fps);
@@ -488,6 +493,11 @@ pub fn save_to_storage(
         storage,
         AE_KARA_CELL_MODE_KEY,
         &editor_settings.ae_kara_cell_mode.storage_id(),
+    );
+    eframe::set_value(
+        storage,
+        AE_SHEET_NAME_SOURCE_KEY,
+        &editor_settings.ae_sheet_name_source.storage_id(),
     );
     eframe::set_value(storage, DEFAULT_SHEET_FPS_KEY, &sheet_settings.default_fps);
     eframe::set_value(

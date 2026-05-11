@@ -25,6 +25,13 @@ pub enum AeKaraCellMode {
     MaxFrameCount,
 }
 
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum AeSheetNameSource {
+    CompName,
+    ProjectName,
+    RenderQueueName,
+}
+
 pub const DEFAULT_AE_KEYFRAME_VERSION: &str = "7.0";
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -83,6 +90,7 @@ pub struct EditorSettings {
     pub ae_keyframe_data_locale: AeKeyframeDataLocale,
     pub ae_keyframe_version: String,
     pub ae_kara_cell_mode: AeKaraCellMode,
+    pub ae_sheet_name_source: AeSheetNameSource,
     pub keybindings: KeyBindings,
 }
 
@@ -94,6 +102,7 @@ impl Default for EditorSettings {
             ae_keyframe_data_locale: AeKeyframeDataLocale::Japanese,
             ae_keyframe_version: DEFAULT_AE_KEYFRAME_VERSION.to_owned(),
             ae_kara_cell_mode: AeKaraCellMode::Blinds,
+            ae_sheet_name_source: AeSheetNameSource::CompName,
             keybindings: KeyBindings::default(),
         }
     }
@@ -109,6 +118,7 @@ impl EditorSettings {
         self.ae_keyframe_data_locale = AeKeyframeDataLocale::Japanese;
         self.ae_keyframe_version = DEFAULT_AE_KEYFRAME_VERSION.to_owned();
         self.ae_kara_cell_mode = AeKaraCellMode::Blinds;
+        self.ae_sheet_name_source = AeSheetNameSource::CompName;
     }
 }
 
@@ -189,6 +199,32 @@ impl AeKaraCellMode {
         match self {
             Self::Blinds => strings::ae_kara_cell_mode_blinds(locale),
             Self::MaxFrameCount => strings::ae_kara_cell_mode_max_frame_count(locale),
+        }
+    }
+}
+
+impl AeSheetNameSource {
+    pub const fn storage_id(self) -> u8 {
+        match self {
+            Self::CompName => 0,
+            Self::ProjectName => 1,
+            Self::RenderQueueName => 2,
+        }
+    }
+
+    pub const fn from_storage_id(id: u8) -> Self {
+        match id {
+            1 => Self::ProjectName,
+            2 => Self::RenderQueueName,
+            _ => Self::CompName,
+        }
+    }
+
+    pub fn localized_label(self, locale: AppLocale) -> &'static str {
+        match self {
+            Self::CompName => strings::ae_sheet_name_source_comp_name(locale),
+            Self::ProjectName => strings::ae_sheet_name_source_project_name(locale),
+            Self::RenderQueueName => strings::ae_sheet_name_source_render_queue_name(locale),
         }
     }
 }
@@ -694,8 +730,9 @@ fn normalize_ae_keyframe_version(value: &str) -> String {
 #[cfg(test)]
 mod tests {
     use super::{
-        AeKaraCellMode, AeKeyframeDataLocale, ClipboardExportFormat, DEFAULT_AE_KEYFRAME_VERSION,
-        EditorSettings, KeyBinding, KeyBindings, KeybindAction, normalize_ae_keyframe_version,
+        AeKaraCellMode, AeKeyframeDataLocale, AeSheetNameSource, ClipboardExportFormat,
+        DEFAULT_AE_KEYFRAME_VERSION, EditorSettings, KeyBinding, KeyBindings, KeybindAction,
+        normalize_ae_keyframe_version,
     };
 
     #[test]
@@ -745,6 +782,7 @@ mod tests {
             ae_keyframe_data_locale: AeKeyframeDataLocale::English,
             ae_keyframe_version: "9.0".to_owned(),
             ae_kara_cell_mode: AeKaraCellMode::MaxFrameCount,
+            ae_sheet_name_source: AeSheetNameSource::RenderQueueName,
             keybindings: KeyBindings::default(),
         };
 
@@ -761,5 +799,6 @@ mod tests {
         );
         assert_eq!(settings.ae_keyframe_version, DEFAULT_AE_KEYFRAME_VERSION);
         assert_eq!(settings.ae_kara_cell_mode, AeKaraCellMode::Blinds);
+        assert_eq!(settings.ae_sheet_name_source, AeSheetNameSource::CompName);
     }
 }

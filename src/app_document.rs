@@ -297,7 +297,9 @@ impl TableApp {
             ) {
                 Ok(sheet) => {
                     self.sheet.replace_sheet(sheet);
-                    self.sheet.set_name(payload.comp_name);
+                    self.sheet
+                        .set_name(payload.sheet_name(self.editor_settings.ae_sheet_name_source));
+                    self.file_state.set_current_source(None);
                     self.current_sheet_loaded_from_sts = false;
                     self.table_view.reset_for_new_sheet();
                     self.table_view

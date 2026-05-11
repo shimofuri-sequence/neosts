@@ -33,9 +33,9 @@ pub use formats::{ard, ditis, sts, sxf, tdts, xdts};
 pub use row_actions::{RowAction, RowActionEvent, RowActionState, execute_row_action};
 pub use row_header_menu::show_row_header_context_menu;
 pub use settings::{
-    AeKaraCellMode, AeKeyframeDataLocale, AlternateColumnMode, AppLocale, AppSettings,
-    ClipboardExportFormat, DisplayMode, EditorSettings, FrameHeaderMode, HeaderDisplayDensity,
-    SegmentHeaderMode, SheetSettings, TableColorTheme, TableSettings,
+    AeKaraCellMode, AeKeyframeDataLocale, AeSheetNameSource, AlternateColumnMode, AppLocale,
+    AppSettings, ClipboardExportFormat, DisplayMode, EditorSettings, FrameHeaderMode,
+    HeaderDisplayDensity, SegmentHeaderMode, SheetSettings, TableColorTheme, TableSettings,
 };
 pub use sheet::{BLANK_CELL_VALUE, CellValue, Sheet, SheetColumn, SheetError};
 pub use table::{
