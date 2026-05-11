@@ -279,6 +279,34 @@ pub fn blank_cel_mode(locale: AppLocale) -> &'static str {
     }
 }
 
+pub fn ae_receive_sheet_name(locale: AppLocale) -> &'static str {
+    match locale {
+        AppLocale::Japanese => "AE受信時のシート名",
+        AppLocale::English => "Sheet name when receiving from AE",
+    }
+}
+
+pub fn ae_sheet_name_source_comp_name(locale: AppLocale) -> &'static str {
+    match locale {
+        AppLocale::Japanese => "コンポ名",
+        AppLocale::English => "Comp name",
+    }
+}
+
+pub fn ae_sheet_name_source_project_name(locale: AppLocale) -> &'static str {
+    match locale {
+        AppLocale::Japanese => "AEP名",
+        AppLocale::English => "AEP name",
+    }
+}
+
+pub fn ae_sheet_name_source_render_queue_name(locale: AppLocale) -> &'static str {
+    match locale {
+        AppLocale::Japanese => "レンダーキュー名",
+        AppLocale::English => "Render queue name",
+    }
+}
+
 pub fn sheet_settings(locale: AppLocale) -> &'static str {
     match locale {
         AppLocale::Japanese => "シート設定",

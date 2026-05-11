@@ -3,8 +3,8 @@ use eframe::egui::{self, Color32, Modal, style::ScrollStyle};
 use neosts::settings::editor::{KeybindAction, keybind_action_id};
 use neosts::settings::table::{ContinuationLineStyle, TableSettings};
 use neosts::{
-    AeKaraCellMode, AeKeyframeDataLocale, AppLocale, AppSettings, ClipboardExportFormat,
-    EditorSettings, SheetSettings, TableViewState, strings,
+    AeKaraCellMode, AeKeyframeDataLocale, AeSheetNameSource, AppLocale, AppSettings,
+    ClipboardExportFormat, EditorSettings, SheetSettings, TableViewState, strings,
 };
 
 const PREFERENCES_MODAL_WIDTH: f32 = 420.0;
@@ -745,6 +745,37 @@ fn show_ae_tab(
                                 &mut editor_settings.ae_kara_cell_mode,
                                 AeKaraCellMode::MaxFrameCount,
                                 AeKaraCellMode::MaxFrameCount.localized_label(locale),
+                            );
+                        });
+                },
+            );
+            ui.end_row();
+
+            ui.label(strings::ae_receive_sheet_name(locale));
+            ui.add_enabled_ui(
+                editor_settings.clipboard_export_format == ClipboardExportFormat::AfterEffects,
+                |ui| {
+                    egui::ComboBox::from_id_salt("ae_sheet_name_source")
+                        .selected_text(
+                            editor_settings
+                                .ae_sheet_name_source
+                                .localized_label(locale),
+                        )
+                        .show_ui(ui, |ui| {
+                            ui.selectable_value(
+                                &mut editor_settings.ae_sheet_name_source,
+                                AeSheetNameSource::CompName,
+                                AeSheetNameSource::CompName.localized_label(locale),
+                            );
+                            ui.selectable_value(
+                                &mut editor_settings.ae_sheet_name_source,
+                                AeSheetNameSource::ProjectName,
+                                AeSheetNameSource::ProjectName.localized_label(locale),
+                            );
+                            ui.selectable_value(
+                                &mut editor_settings.ae_sheet_name_source,
+                                AeSheetNameSource::RenderQueueName,
+                                AeSheetNameSource::RenderQueueName.localized_label(locale),
                             );
                         });
                 },
