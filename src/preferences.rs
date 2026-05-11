@@ -756,11 +756,7 @@ fn show_ae_tab(
                 editor_settings.clipboard_export_format == ClipboardExportFormat::AfterEffects,
                 |ui| {
                     egui::ComboBox::from_id_salt("ae_sheet_name_source")
-                        .selected_text(
-                            editor_settings
-                                .ae_sheet_name_source
-                                .localized_label(locale),
-                        )
+                        .selected_text(editor_settings.ae_sheet_name_source.localized_label(locale))
                         .show_ui(ui, |ui| {
                             ui.selectable_value(
                                 &mut editor_settings.ae_sheet_name_source,

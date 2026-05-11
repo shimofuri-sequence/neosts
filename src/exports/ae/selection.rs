@@ -210,8 +210,9 @@ impl AeSelectionPayload {
     pub fn sheet_name(&self, source: AeSheetNameSource) -> &str {
         match source {
             AeSheetNameSource::CompName => &self.comp_name,
-            AeSheetNameSource::ProjectName => non_empty_name(self.project_name.as_deref())
-                .unwrap_or(&self.comp_name),
+            AeSheetNameSource::ProjectName => {
+                non_empty_name(self.project_name.as_deref()).unwrap_or(&self.comp_name)
+            }
             AeSheetNameSource::RenderQueueName => {
                 non_empty_name(self.render_queue_name.as_deref()).unwrap_or(&self.comp_name)
             }
@@ -1035,7 +1036,10 @@ mod tests {
         };
 
         assert_eq!(payload.sheet_name(AeSheetNameSource::CompName), "Comp 1");
-        assert_eq!(payload.sheet_name(AeSheetNameSource::ProjectName), "Project A");
+        assert_eq!(
+            payload.sheet_name(AeSheetNameSource::ProjectName),
+            "Project A"
+        );
         assert_eq!(
             payload.sheet_name(AeSheetNameSource::RenderQueueName),
             "RQ Master"
